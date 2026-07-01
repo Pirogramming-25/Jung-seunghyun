@@ -1,0 +1,133 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family:Arial, sans-serif;
+    background-color: beige;
+    color:rgb(59, 24, 24);
+}
+.page {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+.header {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-bottom: 30px;
+    background-color: #764646;
+    color: beige;
+    padding: 40px 120px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.header h1 {
+    margin: 0;
+    font-size: 40px;
+}
+.header-link {
+    color: beige;
+    font-size: 40px;
+    font-weight: 700;
+}
+.button {
+    padding: 10px 16px;
+    border-radius: 10px;
+    background-color: #fffaf0;
+    color:beige;
+    color:#764646;
+}
+
+/*리스트 페이지*/
+.review-list {
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    gap: 10px;
+    padding: 40px;
+}
+.review-card {
+    background-color: #fffaf0;
+    border: 2px solid #764646;
+    border-radius: 10px;
+    padding: 18px;
+}
+.review-title {
+    margin: 0 5px 14px;
+    font-size: 25px;
+}
+.review-title a {
+    color:#764646;
+}
+.review-card p {
+    margin: 10px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+/* 디테일 페이지 */
+.detail-card {
+    background-color: #fffaf0;
+    border: 2px solid #764646;
+    border-radius: 14px;
+    padding: 32px;
+    margin: 40px;
+}
+.detail-card h1 {
+    margin: 0 0 24px;
+    font-size: 36px;
+    color: #764646;
+}
+.detail-card p {
+    margin: 14px 0;
+    font-size: 15px;
+    font-weight: 600;
+}
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+/*수정 페이지*/
+.page > h1 {
+    margin: 40px 40px 0;
+    font-size: 36px;
+    color: #764646;
+}
+.review-form {
+    background-color: #fffaf0;
+    border: 2px solid #764646;
+    border-radius: 14px;
+    padding: 32px;
+    margin: 30px 40px 40px;
+}
+.form-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.form-content label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #764646;
+}
+.form-content input,
+.form-content select,
+.form-content textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #764646;
+    border-radius: 10px;
+    background-color: #fffaf0;
+    color: rgb(59, 24, 24);
+    font-size: 16px;
+}
+.form-content textarea {
+    min-height: 160px;
+    resize: vertical;
+}
