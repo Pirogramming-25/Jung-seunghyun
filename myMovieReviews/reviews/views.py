@@ -1,11 +1,25 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Review 
 
+#시간단위 변환 함수
+def convert_running_time(minutes):
+    hours = int(minutes) // 60
+    remaining_minutes = int(minutes) % 60
+    
+    if hours == 0:
+        return f"{remaining_minutes}분"
+    elif remaining_minutes == 0:
+        return f"{hours}시간"
+    else:
+        return f"{hours}시간 {remaining_minutes}분"
+    
 #리뷰 리스트 페이지
 def review_list(request):
     #Review 테이블에 있는 모든 리뷰데이터를 가져옴
     reviews = Review.objects.all()
-    
+    # 각 리뷰마다 보여줄 러닝타임 문자열 추가
+    for review in reviews:
+        review.running_time_text = convert_running_time(review.running_time)
     # review_list.html 화면을 보여줌
     # reviews라는 이름으로 리뷰 목록 데이터를 넘겨줌
     return render(request, 'reviews/review_list.html', {'reviews':reviews})
@@ -15,6 +29,9 @@ def review_detail(request, pk):
     
     # DB에서 pk번호에 해당하는 리뷰를 찾음
     review = get_object_or_404(Review, pk=pk)
+    
+    # 각 리뷰마다 보여줄 러닝타임 문자열 추가
+    review.running_time_text = convert_running_time(review.running_time)
     
     #디테일 html 화면을 보여주면서 review라는 이름으로 리뷰 하나의 데이터 넘겨줌
     return render(request, 'reviews/review_detail.html', {'review':review})
