@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리뷰 디테일</title>
+    <link rel="stylesheet" href="{% static 'reviews/style.css' %}">
+</head>
+<body>
+    <div class="page">
+        <header class="header">
+            <!--클릭하면 리뷰 리스트 페이지로 이동-->
+            <a href="{% url 'reviews:review_list' %}" class="header-link">my Movie reviews</a>
+        </header>
+        <!--리뷰 상세 내용 영역-->
+        <main class="detail-card">
+            <h1>{{ review.title }}</h1>
+
+            <p>감독: {{ review.director }}</p>
+            <p>주연: {{ review.actor }}</p>
+            <p>장르: {{ review.genre }}</p>
+            <p>별점: {{ review.rating }}</p>
+            <p>러닝타임: {{ review.running_time_text }}</p>
+            <p>리뷰: {{ review.content }}</p>
+
+            <!--수정/삭제 버튼-->
+            <div class="actions">
+                <a href="{% url 'reviews:review_update' review.pk %}" class="button">수정</a>
+                <a href="{% url 'reviews:review_delete' review.pk %}" class="button">삭제</a>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

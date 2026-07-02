@@ -1,1 +1,12 @@
 .DS_Store
+
+# virtual environment
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Django
+db.sqlite3
