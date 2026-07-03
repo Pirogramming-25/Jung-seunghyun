@@ -1,0 +1,7 @@
+<ul>
+{% for devtool in devtools %}
+    <li>
+        <a href="{% url 'devtool_detail' devtool.pk %}">{{ devtool.name }}</a> - {{ devtool.kind }}
+    </li>
+{% endfor %}
+</ul>

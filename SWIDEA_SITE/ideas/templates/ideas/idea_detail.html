@@ -1,0 +1,67 @@
+<h1>{{ idea.title }}</h1>
+<img src="{{ idea.image.url }}" width="300">
+<p>{{ idea.content }}</p>
+
+<p>관심도: <span id="interest-value">{{ idea.interest }}</span></p>
+<button onclick="changeInterest(-1)">-</button>
+<button onclick="changeInterest(1)">+</button>
+
+<p>
+    개발툴: <a href="{% url 'devtool_detail' idea.devtool.pk %}">{{ idea.devtool.name }}</a>
+</p>
+
+<a href="{% url 'idea_delete' idea.pk %}">삭제</a>
+<a href="{% url 'idea_list' %}">목록</a>
+<a href="{% url 'idea_update' idea.pk%}">수정</a>
+
+{% if is_starred %}
+    <p id="star-status">★ 찜한 아이디어입니다</p>
+{% else %}
+    <p id="star-status">☆ 찜하지 않음</p>
+{% endif %}
+
+<button id="star-btn" onclick="toggleStar()">
+    {% if is_starred %}찜 해제{% else %}찜하기{% endif %}
+</button>
+
+{% csrf_token %}
+<script>
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function toggleStar() {
+    fetch("{% url 'idea_star_toggle' idea.pk %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.starred) {
+            document.getElementById('star-status').textContent = '★ 찜한 아이디어입니다';
+            document.getElementById('star-btn').textContent = '찜 해제';
+        } else {
+            document.getElementById('star-status').textContent = '☆ 찜하지 않음';
+            document.getElementById('star-btn').textContent = '찜하기';
+        }
+    });
+}
+function changeInterest(delta) {
+    fetch("{% url 'idea_interest_update' idea.pk %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ delta: delta }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        document.getElementById('interest-value').textContent = data.interest;
+    });
+}
+</script>
