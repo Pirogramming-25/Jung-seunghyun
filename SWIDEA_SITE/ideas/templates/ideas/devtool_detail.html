@@ -1,0 +1,16 @@
+<h1>{{ devtool.name }}</h1>
+<p>{{ devtool.kind }}</p>
+<p>{{ devtool.content }}</p>
+
+<h3>이 개발툴을 사용하는 아이디어</h3>
+<ul>
+{% for idea in ideas %}
+    <li><a href="{% url 'idea_detail' idea.pk %}">{{ idea.title }}</a></li>
+{% empty %}
+    <li>아직 이 개발툴을 사용하는 아이디어가 없어요</li>
+{% endfor %}
+</ul>
+
+<a href="{% url 'devtool_delete' devtool.pk %}">삭제</a>
+<a href="{% url 'devtool_list' %}">목록</a>
+<a href="{% url 'devtool_update' devtool.pk%}">수정</a>

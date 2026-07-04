@@ -1,0 +1,71 @@
+<select onchange="location.href='?sort='+this.value">
+    <option value="new" {% if sort == 'new' %}selected{% endif %}>최신순</option>
+    <option value="old" {% if sort == 'old' %}selected{% endif %}>등록순</option>
+    <option value="name" {% if sort == 'name' %}selected{% endif %}>이름순</option>
+</select>
+
+<ul>
+{% for idea in ideas %}
+    <li class="idea-card">
+        <button class="star-btn" onclick="toggleStar({{ idea.pk }}, this)">☆</button>
+        <img src="{{ idea.image.url }}" width="100">
+        <p><a href="{% url 'idea_detail' idea.pk %}">{{ idea.title }}</a></p>
+        <p>예상 개발 툴: {{ idea.devtool.name }}</p>
+        <p>
+            아이디어 관심도:
+            <button onclick="changeInterest({{ idea.pk }}, -1, this)">-</button>
+            <span class="interest-value">{{ idea.interest }}</span>
+            <button onclick="changeInterest({{ idea.pk }}, 1, this)">+</button>
+        </p>
+    </li>
+{% endfor %}
+</ul>
+
+<style>
+.idea-card {
+    position: relative;
+    width: 220px;
+    display: inline-block;
+    vertical-align: top;
+}
+.star-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+</style>
+
+{% csrf_token %}
+<script>
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+}
+
+function toggleStar(ideaId, btn) {
+    fetch(`/ideas/${ideaId}/star/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.textContent = data.starred ? '★' : '☆';
+    });
+}
+
+function changeInterest(ideaId, delta, btn) {
+    fetch(`/ideas/${ideaId}/interest/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ delta: delta }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        btn.parentElement.querySelector('.interest-value').textContent = data.interest;
+    });
+}
+</script>
