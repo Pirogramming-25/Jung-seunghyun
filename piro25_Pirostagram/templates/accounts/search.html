@@ -1,0 +1,23 @@
+<h1>유저 검색</h1>
+
+<!-- 검색창 (GET 방식) -->
+<form method="get" action="{% url 'accounts:search' %}">
+    <input type="text" name="q" value="{{ query }}" placeholder="아이디 또는 이름">
+    <button type="submit">검색</button>
+</form>
+
+{% if query %}
+    <h2>"{{ query }}" 검색 결과</h2>
+    {% for user in results %}
+        <div>
+            <!-- 클릭하면 그 유저 프로필로 이동 -->
+            <a href="{% url 'accounts:profile' user.username %}">
+                <strong>{{ user.username }}</strong>
+            </a>
+        </div>
+    {% empty %}
+        <p>검색 결과가 없습니다.</p>
+    {% endfor %}
+{% endif %}
+
+<a href="{% url 'posts:feed' %}">홈으로</a>

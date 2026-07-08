@@ -11,7 +11,7 @@
         color: red;         /* liked 클래스가 붙으면: 빨간 하트 */
     }
 </style>
-
+<a href="{% url 'accounts:search' %}">유저 검색</a>
 <h1>Pirostagram 피드</h1>
 <a href="{% url 'accounts:logout' %}">로그아웃</a>
 
@@ -73,7 +73,7 @@
                 <input type="text" name="content" placeholder="댓글 달기...">
                 <button type="submit">게시</button>
             </form>
-            
+
             <!--내 글일 때만 삭제 버튼 보이기-->
             {% if post.author == request.user %}
                 <button class="delete-btn" data-id="{{ post.id }}">삭제</button>

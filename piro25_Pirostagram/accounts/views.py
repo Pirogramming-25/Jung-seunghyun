@@ -4,7 +4,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from .forms import SignupForm
 from django.contrib.auth.decorators import login_required
 from .models import User, Follow
-
+from django.db.models import Q
 
 def signup(request):
     if request.method == 'POST':
@@ -59,4 +59,20 @@ def profile(request, username):
         'profile_user': profile_user,
         'posts': posts,
         'is_following': is_following,
+    })
+
+@login_required
+def user_search(request):
+    query = request.GET.get('q', '')   # 검색창에 입력한 값
+
+    results = []
+    if query:
+        # 아이디 또는 이름에 검색어가 포함된 유저 찾기
+        results = User.objects.filter(
+            Q(username__icontains=query) | Q(first_name__icontains=query)
+        )
+
+    return render(request, 'accounts/search.html', {
+        'query': query,
+        'results': results,
     })
