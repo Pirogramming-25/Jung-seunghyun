@@ -1,0 +1,33 @@
+{% load static %}
+<h1>Pirostagram 피드</h1>
+<a href="{% url 'accounts:logout' %}">로그아웃</a>
+
+<!-- 게시글 작성 폼 -->
+<h2>새 게시글</h2>
+<form id="post-form" enctype="multipart/form-data">
+    {% csrf_token %} <!--보안을 위해 폼에 항상 넣음-->
+    <!--multiple = 사진 여러장 선택 가능-->
+    <input type="file" name="images" multiple accept="image/*">
+    <textarea name="caption" placeholder="문구 입력..."></textarea>
+    <button type="submit">게시</button>
+</form>
+
+<!-- 게시글 목록 -->
+<div id="post-list">
+    {% for post in posts %} <!--posts를 하나씩 반복-->
+        <!--data-id = JS가 몇 번 글인지 알 수 있게 해주는 값-->
+        <div class="post" data-id="{{ post.id }}">
+            <strong>{{ post.author.username }}</strong>
+            {% for img in post.images.all %}
+                <img src="{{ img.image.url }}" width="300">
+            {% endfor %}
+            <p>{{ post.caption }}</p>
+            <!--내 글일 때만 삭제 버튼 보이기-->
+            {% if post.author == request.user %}
+                <button class="delete-btn" data-id="{{ post.id }}">삭제</button>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+<script src="{% static 'js/post.js' %}"></script>
