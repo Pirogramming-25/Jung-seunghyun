@@ -76,23 +76,44 @@ a { text-decoration: none; color: inherit; }
 /* 버튼 공통 */
 .btn-blue { background: #0095f6; color: white; border: none; padding: 6px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; }
 
+/* ===== 스토리 뷰어 ===== */
 #story-viewer { 
     position: fixed; inset: 0; 
     background: rgba(0,0,0,0.9); display: flex; 
     align-items: center; justify-content: center; z-index: 1000; 
+    gap: 20px;
 }
 #story-viewer.hidden { display: none; }
+.viewer-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 40px;
+    position: relative;
+}
 #viewer-img { 
-    max-width: 400px; max-height: 80vh; 
-    border-radius: 8px; 
+    max-width: 400px; max-height: 70vh; 
+    display: block;
 }
-#story-viewer button { 
-    background: none; border: none; 
-    color: #ffffff; font-size: 32px; 
-    cursor: pointer; 
+/* 좌우 화살표 (흰색) */
+#viewer-prev, #viewer-next {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 40px;
+    cursor: pointer;
 }
-#viewer-close { position: absolute; top: 20px; right: 30px; }
-#progress-bars { position: absolute; top: 20px; display: flex; gap: 4px; }
+#viewer-close { 
+    position: absolute; 
+    top: 12px; right: 16px;
+    background: none; border: none;
+    color:#333;
+    cursor: pointer;
+}
+#progress-bars { 
+    position: absolute; 
+    top: 20px; display: flex; 
+    gap: 4px; 
+}
 .progress-bar { 
     width: 40px; height: 3px; 
     background: rgba(255,255,255,0.4); 

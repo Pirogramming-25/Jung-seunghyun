@@ -113,12 +113,19 @@
 </div>
 
 <!-- 스토리 뷰어 -->
-<div id="story-viewer" class="hidden">
-    <button id="viewer-close">✕</button>
-    <button id="viewer-prev">‹</button>
-    <img id="viewer-img">
-    <button id="viewer-next">›</button>
-    <div id="progress-bars"></div>
-</div>
+<!-- 스토리 뷰어 -->
+    <div id="story-viewer" class="hidden">
+        <div id="progress-bars"></div>
+
+        <button id="viewer-prev">‹</button>
+
+        <!-- 흰색 카드 -->
+        <div class="viewer-card">
+            <button id="viewer-close">✕</button>
+            <img id="viewer-img">
+        </div>
+
+        <button id="viewer-next">›</button>
+    </div>
 
 <script src="{% static 'js/post.js' %}"></script>
