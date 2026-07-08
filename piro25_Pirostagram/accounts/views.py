@@ -71,8 +71,13 @@ def user_search(request):
         results = User.objects.filter(
             Q(username__icontains=query) | Q(first_name__icontains=query)
         )
+        
+    # 내가 팔로우 중인 사람들의 id 목록 (버튼 상태 판단용)
+    following_ids = request.user.following.values_list('to_user_id', flat=True)
+
 
     return render(request, 'accounts/search.html', {
         'query': query,
         'results': results,
+        'following_ids': following_ids,
     })

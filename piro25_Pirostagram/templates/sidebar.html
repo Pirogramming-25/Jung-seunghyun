@@ -1,0 +1,18 @@
+{% load static %}
+<aside class="sidebar">
+    <div class="logo">Pirostagram</div>
+    <nav>
+        <a href="{% url 'posts:feed' %}">🏠 홈</a>
+
+        <!-- 유저 검색 (사이드바 안에서 바로 검색) -->
+        <form method="get" action="{% url 'accounts:search' %}">
+            <div>🔍 유저 검색</div>
+            <input type="text" name="q" placeholder="아이디 또는 이름">
+            <button type="submit">검색</button>
+        </form>
+
+        <a href="{% url 'posts:feed' %}">➕ 게시글 만들기</a>
+        <a href="{% url 'accounts:profile' request.user.username %}">👤 프로필</a>
+        <a href="{% url 'accounts:logout' %}">↩ 로그아웃</a>
+    </nav>
+</aside>

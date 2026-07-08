@@ -1,33 +1,56 @@
 {% load static %}
-<h1>{{ profile_user.username }}</h1>
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
 
-<!-- 내 프로필이 아닐 때만 팔로우 버튼 -->
-{% if profile_user != request.user %}
-    <form method="post" action="{% url 'accounts:follow' profile_user.username %}">
-        {% csrf_token %}
-        {% if is_following %}
-            <button type="submit">팔로잉</button>   <!-- 이미 팔로우 중 -->
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="profile-main">
+        <!-- 프로필 헤더 -->
+        <div class="profile-header">
+            {% if profile_user.profile_image %}
+                <img src="{{ profile_user.profile_image.url }}" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar" style="background:#ddd;"></div>
+            {% endif %}
+
+            <div class="profile-info">
+                <div class="profile-top">
+                    <h2>{{ profile_user.username }}</h2>
+                    {% if profile_user == request.user %}
+                        <button class="btn-gray">프로필 수정하기</button>
+                    {% else %}
+                        <form method="post" action="{% url 'accounts:follow' profile_user.username %}">
+                            {% csrf_token %}
+                            {% if is_following %}
+                                <button class="btn-gray">팔로잉</button>
+                            {% else %}
+                                <button class="btn-blue">팔로우</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                </div>
+
+                <div class="profile-stats">
+                    <span>게시물 <strong>{{ posts.count }}</strong></span>
+                    <span>팔로워 <strong>{{ profile_user.followers.count }}</strong></span>
+                    <span>팔로우 <strong>{{ profile_user.following.count }}</strong></span>
+                </div>
+
+                <p>{{ profile_user.bio|default:"소개글이 없습니다." }}</p>
+            </div>
+        </div>
+
+        <!-- 게시글 그리드 -->
+        {% if posts %}
+            <div class="post-grid">
+                {% for post in posts %}
+                    {% with post.images.first as img %}
+                        {% if img %}<img src="{{ img.image.url }}">{% endif %}
+                    {% endwith %}
+                {% endfor %}
+            </div>
         {% else %}
-        <button type="submit">팔로우</button>   <!-- 아직 안 함 -->
+            <div class="empty">아직 게시물이 없습니다!<br>나만의 게시글을 만들어보세요!</div>
         {% endif %}
-    </form>
-{% endif %}
-
-<!-- 팔로워/팔로잉 수 -->
-<p>
-    게시물 {{ posts.count }}
-    팔로워 {{ profile_user.followers.count }}
-    팔로우 {{ profile_user.following.count }}
-</p>
-<p>{{ profile_user.bio|default:"소개글이 없습니다." }}</p>
-
-<!-- 그 유저의 게시글 그리드 -->
-<div>
-    {% for post in posts %}
-        {% for img in post.images.all %}
-            <img src="{{ img.image.url }}" width="200">
-        {% endfor %}
-    {% endfor %}
+    </main>
 </div>
-
-<a href="{% url 'posts:feed' %}">홈으로</a>

@@ -61,6 +61,28 @@ document.querySelectorAll('.like-btn').forEach((btn) => {
     });
 });
 
+// 게시글 수정
+document.querySelectorAll('.edit-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;
+        const postDiv = document.querySelector(`.post[data-id="${id}"]`);
+        const captionEl = postDiv.querySelector('p');   // 문구 요소
+
+        const newCaption = prompt('게시글 수정', captionEl.textContent);
+        if (newCaption === null) return;   // 취소하면 중단
+
+        const formData = new FormData();
+        formData.append('caption', newCaption);
+        const res = await fetch(`/${id}/update/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') },
+            body: formData,
+        });
+        const data = await res.json();
+        if (res.ok) captionEl.textContent = data.caption;   // 화면 문구 교체
+    });
+});
+
 // ===== 스토리 뷰어 (자동 넘김) =====
 const viewer = document.getElementById('story-viewer');
 const viewerImg = document.getElementById('viewer-img');

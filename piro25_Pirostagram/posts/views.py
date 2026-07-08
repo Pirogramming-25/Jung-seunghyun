@@ -7,6 +7,8 @@ from datetime import timedelta
 from stories.models import Story
 import json
 from collections import OrderedDict
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 #[조회] 메인 피드 화면을 보여주는 함수
 @login_required # 로그인해야 접근 가능
@@ -45,13 +47,16 @@ def feed(request):
     #내가 좋아요 누른 게시글들의 id 목록을 미리 구함(User -> Like 역방향)
     liked_posts = request.user.likes.values_list('post_id', flat=True)
     
+    # 나 자신 + 이미 팔로우한 사람 빼고 최대 5명 추천
+    recommended = User.objects.exclude(id=request.user.id).exclude(id__in=following_ids)[:5]
+
     # feed.html 템플릿에 posts를 넘겨서 화면을 그림
     return render(request, 'posts/feed.html', {
         'posts': posts,
         'liked_posts': liked_posts,
         'story_list': story_list,
+        'recommended': recommended,
     })
-
 #[작성] 새 게시글을 만드는 함수(Ajax로 호출됨)
 @login_required
 def post_create(request):
