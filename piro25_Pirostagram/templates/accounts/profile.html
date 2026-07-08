@@ -1,0 +1,33 @@
+{% load static %}
+<h1>{{ profile_user.username }}</h1>
+
+<!-- 내 프로필이 아닐 때만 팔로우 버튼 -->
+{% if profile_user != request.user %}
+    <form method="post" action="{% url 'accounts:follow' profile_user.username %}">
+        {% csrf_token %}
+        {% if is_following %}
+            <button type="submit">팔로잉</button>   <!-- 이미 팔로우 중 -->
+        {% else %}
+        <button type="submit">팔로우</button>   <!-- 아직 안 함 -->
+        {% endif %}
+    </form>
+{% endif %}
+
+<!-- 팔로워/팔로잉 수 -->
+<p>
+    게시물 {{ posts.count }}
+    팔로워 {{ profile_user.followers.count }}
+    팔로우 {{ profile_user.following.count }}
+</p>
+<p>{{ profile_user.bio|default:"소개글이 없습니다." }}</p>
+
+<!-- 그 유저의 게시글 그리드 -->
+<div>
+    {% for post in posts %}
+        {% for img in post.images.all %}
+            <img src="{{ img.image.url }}" width="200">
+        {% endfor %}
+    {% endfor %}
+</div>
+
+<a href="{% url 'posts:feed' %}">홈으로</a>

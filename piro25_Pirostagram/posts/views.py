@@ -5,14 +5,23 @@ from .models import Post, PostImage, Like, Comment
 
 #[조회] 메인 피드 화면을 보여주는 함수
 @login_required # 로그인해야 접근 가능
-def feed(request):
-    posts = Post.objects.all()   # DB에서 게시글 전부 가져오기
+def feed(request):    
+    # 내가 팔로우하는 사람들의 id 목록
+    following_ids = request.user.following.values_list('to_user_id', flat=True)
+
+    # 팔로우한 사람들 + 나 자신의 글만 보이게
+    posts = Post.objects.filter(
+        author_id__in=list(following_ids) + [request.user.id]
+    )
     
     #내가 좋아요 누른 게시글들의 id 목록을 미리 구함(User -> Like 역방향)
     liked_posts = request.user.likes.values_list('post_id', flat=True)
     
     # feed.html 템플릿에 posts를 넘겨서 화면을 그림
-    return render(request, 'posts/feed.html', {'posts': posts, 'liked_posts': liked_posts})
+    return render(request, 'posts/feed.html', {
+        'posts': posts,
+        'liked_posts': liked_posts
+    })
 
 #[작성] 새 게시글을 만드는 함수(Ajax로 호출됨)
 @login_required
