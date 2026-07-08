@@ -8,6 +8,7 @@ from stories.models import Story
 import json
 from collections import OrderedDict
 from django.contrib.auth import get_user_model
+from django.db.models import Count
 User = get_user_model()
 
 #[조회] 메인 피드 화면을 보여주는 함수
@@ -20,6 +21,14 @@ def feed(request):
     posts = Post.objects.filter(
         author_id__in = author_ids
     )
+    # 정렬 기준 받기 (기본: 최신순)
+    sort = request.GET.get('sort', 'recent')
+    if sort == 'likes':
+        posts = posts.annotate(like_count=Count('likes')).order_by('-like_count')
+    elif sort == 'comments':
+        posts = posts.annotate(comment_count=Count('comments')).order_by('-comment_count')
+    else:  # recent
+        posts = posts.order_by('-created_at')
     
     # 스토리: 팔로우한 사람 + 나, 그리고 최근 24시간 이내만
     day_ago = timezone.now() - timedelta(hours=24)
@@ -56,6 +65,7 @@ def feed(request):
         'liked_posts': liked_posts,
         'story_list': story_list,
         'recommended': recommended,
+        'sort': sort,
     })
 #[작성] 새 게시글을 만드는 함수(Ajax로 호출됨)
 @login_required
@@ -108,6 +118,20 @@ def post_delete(request, post_id):
         post.delete()
         return JsonResponse({'success': True, 'id': post_id})
     return JsonResponse({'error': 'POST 요청만 허용'}, status=400)
+
+@login_required
+def post_search(request):
+    query = request.GET.get('q', '')       # 검색어
+
+    results = []
+    if query:
+        # 게시글 문구(caption)에 검색어가 들어간 글 찾기
+        results = Post.objects.filter(caption__icontains=query)
+
+    return render(request, 'posts/search.html', {
+        'query': query,
+        'results': results,
+    })
 
 @login_required
 def like_toggle(request, post_id):

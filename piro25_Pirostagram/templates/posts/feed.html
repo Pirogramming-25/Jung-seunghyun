@@ -7,24 +7,13 @@
 
     <!-- ===== 가운데 피드 ===== -->
     <main class="feed-main">
-
-        <!-- 게시글 작성 -->
-        <form id="post-form" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="images" multiple accept="image/*">
-            <textarea name="caption" placeholder="문구 입력..."></textarea>
-            <button type="submit">게시</button>
-        </form>
-
-        <!-- 스토리 업로드 -->
-        <form method="post" action="{% url 'stories:create' %}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="file" name="images" multiple accept="image/*">
-            <button type="submit">스토리 게시</button>
-        </form>
-
         <!-- 스토리 바 -->
         <div class="story-bar">
+            <!-- 스토리+ : 누르면 사진 선택 → 자동 업로드 -->
+            <label class="story-item" for="story-file">
+                <div class="story-add">+</div>
+                <div>스토리+</div>
+            </label>
             {% for s in story_list %}
                 <div class="story-item" data-images='{{ s.images_json|safe }}'>
                     <img src="{{ s.thumb }}" class="story-thumb">
@@ -33,6 +22,24 @@
             {% endfor %}
         </div>
 
+        <!-- 숨겨진 스토리 업로드 폼 -->
+        <form method="post" action="{% url 'stories:create' %}" enctype="multipart/form-data" id="story-form">
+            {% csrf_token %}
+            <input type="file" id="story-file" name="images" multiple accept="image/*"
+                style="display:none" onchange="document.getElementById('story-form').submit()">
+        </form>
+
+        <!-- 게시글 정렬 -->
+        <form method="get" action="{% url 'posts:feed' %}" class="sort-form">
+            게시글 정렬 기준:
+            <select name="sort">
+                <option value="recent" {% if sort == 'recent' %}selected{% endif %}>최신순</option>
+                <option value="likes" {% if sort == 'likes' %}selected{% endif %}>좋아요순</option>
+                <option value="comments" {% if sort == 'comments' %}selected{% endif %}>댓글순</option>
+            </select>
+            <button type="submit">정렬하기</button>
+        </form>
+        
         <!-- 게시글 목록 (기존 내용 그대로) -->
         <div id="post-list">
             {% for post in posts %}
@@ -110,9 +117,21 @@
         {% endfor %}
     </aside>
 
+    <!-- 게시글 작성 모달 -->
+    <div id="post-modal" class="modal hidden">
+        <div class="modal-box">
+            <button class="modal-close" onclick="document.getElementById('post-modal').classList.add('hidden')">✕</button>
+            <h3>새 게시글</h3>
+            <form id="post-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="images" multiple accept="image/*">
+                <textarea name="caption" placeholder="문구 입력..."></textarea>
+                <button type="submit">게시</button>
+            </form>
+        </div>
+    </div>
 </div>
 
-<!-- 스토리 뷰어 -->
 <!-- 스토리 뷰어 -->
     <div id="story-viewer" class="hidden">
         <div id="progress-bars"></div>
