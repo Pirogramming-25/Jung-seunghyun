@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
 
-
 class Post(models.Model):
     author = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -17,7 +16,6 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.author.username}의 게시글 ({self.id})'
 
-
 class PostImage(models.Model):
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name='images'
@@ -26,6 +24,7 @@ class PostImage(models.Model):
 
 class Like(models.Model):
     # user = 좋아요를 누른 사람
+    # User에서 Like로 역방향 조회
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
@@ -43,3 +42,20 @@ class Like(models.Model):
     class Meta:
         # 같은 사람이 같은 글에 좋아요를 두 번 못 누르게 막음
         unique_together = ('user', 'post')
+
+class Comment(models.Model):
+    # user = 댓글 쓴 사람
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    # post = 이 댓글이 달린 게시글
+    # post.comments 로 역방향 접근
+    post = models.ForeignKey(
+        Post,
+        on_delete=models.CASCADE,
+        related_name='comments',
+    )
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

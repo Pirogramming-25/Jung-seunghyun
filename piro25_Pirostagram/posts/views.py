@@ -1,14 +1,14 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Post, PostImage, Like
+from .models import Post, PostImage, Like, Comment
 
 #[조회] 메인 피드 화면을 보여주는 함수
 @login_required # 로그인해야 접근 가능
 def feed(request):
     posts = Post.objects.all()   # DB에서 게시글 전부 가져오기
     
-    #내가 좋아요 누른 게시글들의 id 목록을 미리 구함
+    #내가 좋아요 누른 게시글들의 id 목록을 미리 구함(User -> Like 역방향)
     liked_posts = request.user.likes.values_list('post_id', flat=True)
     
     # feed.html 템플릿에 posts를 넘겨서 화면을 그림
@@ -82,9 +82,40 @@ def like_toggle(request, post_id):
         # 다시 누른 것이므로 삭제
         like.delete()
         liked=False
-    #총 좋아요 수 세기
+    #총 좋아요 수 세기(Post -> Like 역방향)
     count = post.likes.count()
     
     #JS에게 현재 상태와 개수 알려줌
     return JsonResponse({'liked': liked, 'count': count})
-    
+
+@login_required
+def comment_create(request, post_id):
+    post = get_object_or_404(Post, id=post_id) # 어느 글에 달지 찾기
+    if request.method == 'POST':
+        content = request.POST.get('content', '')
+        comment = Comment.objects.create(
+            user = request.user,
+            post = post,
+            content = content
+        )
+        return redirect('posts:feed')
+
+@login_required
+def comment_update(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if comment.user != request.user:
+        return JsonResponse({'error': '권한 없음'}, status=403)
+    if request.method == 'POST':
+        comment.content = request.POST.get('content', '')
+        comment.save()
+        return redirect('posts:feed')
+
+# 댓글 삭제
+@login_required
+def comment_delete(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+    if comment.user != request.user:
+        return redirect('posts:feed')
+    if request.method == 'POST':
+        comment.delete()
+        return redirect('posts:feed')

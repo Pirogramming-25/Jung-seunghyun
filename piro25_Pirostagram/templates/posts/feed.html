@@ -43,6 +43,37 @@
             <!--좋아요 총 개수-->
             <span class="like-count" data-id="{{ post.id }}">{{ post.likes.count }}</span>
 
+            <!-- 댓글 목록 -->
+            <div class="comment-list">
+                {% for comment in post.comments.all %}
+                    <div class="comment">
+                        <strong>{{ comment.user.username }}</strong>
+                        <span>{{ comment.content }}</span>
+
+                        {% if comment.user == request.user %}
+                            <!-- 수정: 작은 폼으로 새 내용 제출 -->
+                            <form method="post" action="{% url 'posts:comment_update' comment.id %}" style="display:inline">
+                                {% csrf_token %}
+                                <input type="text" name="content" value="{{ comment.content }}">
+                                <button type="submit">수정</button>
+                            </form>
+                            <!-- 삭제: 버튼만 있는 폼 -->
+                            <form method="post" action="{% url 'posts:comment_delete' comment.id %}" style="display:inline">
+                                {% csrf_token %}
+                                <button type="submit">삭제</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- 댓글 작성 폼 -->
+            <form method="post" action="{% url 'posts:comment_create' post.id %}">
+                {% csrf_token %}
+                <input type="text" name="content" placeholder="댓글 달기...">
+                <button type="submit">게시</button>
+            </form>
+            
             <!--내 글일 때만 삭제 버튼 보이기-->
             {% if post.author == request.user %}
                 <button class="delete-btn" data-id="{{ post.id }}">삭제</button>
