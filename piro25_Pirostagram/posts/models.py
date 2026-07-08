@@ -21,6 +21,10 @@ class PostImage(models.Model):
         Post, on_delete=models.CASCADE, related_name='images'
     )
     image = models.ImageField(upload_to='posts/')
+    
+    def __str__(self):
+        return f'{self.post.author.username}의 사진 ({self.id})'
+
 
 class Like(models.Model):
     # user = 좋아요를 누른 사람
@@ -42,6 +46,10 @@ class Like(models.Model):
     class Meta:
         # 같은 사람이 같은 글에 좋아요를 두 번 못 누르게 막음
         unique_together = ('user', 'post')
+        
+    def __str__(self):
+        return f'{self.user.username} → {self.post.id}번 글'
+
 
 class Comment(models.Model):
     # user = 댓글 쓴 사람
@@ -59,3 +67,6 @@ class Comment(models.Model):
     )
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f'{self.user.username}: {self.content[:20]}'

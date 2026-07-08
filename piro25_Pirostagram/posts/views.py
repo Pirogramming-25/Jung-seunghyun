@@ -2,17 +2,45 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Post, PostImage, Like, Comment
+from django.utils import timezone
+from datetime import timedelta
+from stories.models import Story
+import json
+from collections import OrderedDict
 
 #[조회] 메인 피드 화면을 보여주는 함수
 @login_required # 로그인해야 접근 가능
 def feed(request):    
     # 내가 팔로우하는 사람들의 id 목록
     following_ids = request.user.following.values_list('to_user_id', flat=True)
-
+    author_ids = list(following_ids) + [request.user.id]
     # 팔로우한 사람들 + 나 자신의 글만 보이게
     posts = Post.objects.filter(
-        author_id__in=list(following_ids) + [request.user.id]
+        author_id__in = author_ids
     )
+    
+    # 스토리: 팔로우한 사람 + 나, 그리고 최근 24시간 이내만
+    day_ago = timezone.now() - timedelta(hours=24)
+    active_stories = Story.objects.filter(
+        author_id__in=author_ids,
+        created_at__gte=day_ago,          # 24시간 안에 올린 것만
+    ).order_by('created_at')
+    
+    grouped = OrderedDict()
+    for story in active_stories:
+        author = story.author
+        grouped.setdefault(author, [])
+        for img in story.images.all():
+            grouped[author].append(img.image.url)
+    
+    story_list=[]
+    for author, image_urls in grouped.items():
+        story_list.append({
+            'username': author.username,
+            # 프로필 사진이 있으면 그걸, 없으면 첫 스토리 사진을 썸네일로
+            'thumb': author.profile_image.url if author.profile_image else image_urls[0],
+            'images_json': json.dumps(image_urls),   # 뷰어가 넘길 사진 목록(JSON)
+        })
     
     #내가 좋아요 누른 게시글들의 id 목록을 미리 구함(User -> Like 역방향)
     liked_posts = request.user.likes.values_list('post_id', flat=True)
@@ -20,7 +48,8 @@ def feed(request):
     # feed.html 템플릿에 posts를 넘겨서 화면을 그림
     return render(request, 'posts/feed.html', {
         'posts': posts,
-        'liked_posts': liked_posts
+        'liked_posts': liked_posts,
+        'story_list': story_list,
     })
 
 #[작성] 새 게시글을 만드는 함수(Ajax로 호출됨)

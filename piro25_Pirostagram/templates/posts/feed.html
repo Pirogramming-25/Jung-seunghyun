@@ -10,6 +10,30 @@
     .like-btn.liked {
         color: red;         /* liked 클래스가 붙으면: 빨간 하트 */
     }
+    .story-thumb {
+        width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+        cursor: pointer; border: 2px solid #e1306c;   /* 인스타 느낌 테두리 */
+    }
+    .story-item { display: inline-block; text-align: center; margin-right: 12px; }
+
+    /* 뷰어: 화면 전체를 덮는 검은 배경 */
+    #story-viewer {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.9);
+        display: flex; align-items: center; justify-content: center;
+        z-index: 1000;
+    }
+    #story-viewer.hidden { display: none; }        /* 숨김 상태 */
+    #viewer-img { max-width: 400px; max-height: 80vh; border-radius: 8px; }
+    #story-viewer button {
+        background: none; border: none; color: white; font-size: 32px; cursor: pointer;
+    }
+    #viewer-close { position: absolute; top: 20px; right: 30px; }
+
+    /* 진행 바 */
+    #progress-bars { position: absolute; top: 20px; display: flex; gap: 4px; }
+    .progress-bar { width: 40px; height: 3px; background: rgba(255,255,255,0.4); border-radius: 2px; }
+    .progress-bar.active { background: white; }
 </style>
 <a href="{% url 'accounts:search' %}">유저 검색</a>
 <h1>Pirostagram 피드</h1>
@@ -24,6 +48,34 @@
     <textarea name="caption" placeholder="문구 입력..."></textarea>
     <button type="submit">게시</button>
 </form>
+<!-- 스토리 업로드 -->
+<h2>스토리 올리기</h2>
+<form method="post" action="{% url 'stories:create' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input type="file" name="images" multiple accept="image/*">
+    <button type="submit">스토리 게시</button>
+</form>
+
+<!-- 스토리 목록 (사람당 하나) -->
+<div class="story-bar">
+    {% for s in story_list %}
+        <!-- data-images: 이 사람의 모든 스토리 사진 (뷰어가 넘길 목록) -->
+        <div class="story-item" data-images='{{ s.images_json|safe }}'>
+            <img src="{{ s.thumb }}" class="story-thumb">   <!-- 프로필 사진 -->
+            <div>{{ s.username }}</div>
+        </div>
+    {% endfor %}
+</div>
+
+<!-- 스토리 뷰어 (평소엔 숨김) -->
+<div id="story-viewer" class="hidden">
+    <button id="viewer-close">✕</button>
+    <button id="viewer-prev">‹</button>
+    <img id="viewer-img">
+    <button id="viewer-next">›</button>
+    <!-- 진행 바 (위쪽 얇은 막대들) -->
+    <div id="progress-bars"></div>
+</div>
 
 <!-- 게시글 목록 -->
 <div id="post-list">

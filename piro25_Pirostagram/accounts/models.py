@@ -26,3 +26,6 @@ class Follow(models.Model):
     )
     class Meta:
         unique_together = ('from_user', 'to_user') # 같은 사람 중복 팔로우 방지
+        
+    def __str__(self):
+        return f'{self.from_user.username} → {self.to_user.username}'

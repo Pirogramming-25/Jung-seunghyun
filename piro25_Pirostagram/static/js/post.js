@@ -60,3 +60,79 @@ document.querySelectorAll('.like-btn').forEach((btn) => {
         document.querySelector(`.like-count[data-id="${id}"]`).textContent = data.count;
     });
 });
+
+// ===== 스토리 뷰어 (자동 넘김) =====
+const viewer = document.getElementById('story-viewer');
+const viewerImg = document.getElementById('viewer-img');
+const progressBars = document.getElementById('progress-bars');
+
+let images = [];      // 현재 스토리의 사진 URL 목록
+let index = 0;        // 지금 보고 있는 사진 번호
+let timer = null;     // 자동 넘김 타이머
+
+// 스토리 썸네일 클릭 → 뷰어 열기
+document.querySelectorAll('.story-item').forEach((item) => {
+    item.addEventListener('click', () => {
+        images = JSON.parse(item.dataset.images);   // 심어둔 사진 목록 읽기
+        index = 0;
+        openViewer();
+    });
+});
+
+function openViewer() {
+    viewer.classList.remove('hidden');   // 뷰어 보이기
+    buildProgressBars();
+    showImage();
+}
+
+// 현재 index의 사진을 보여주고, 3초 뒤 자동으로 다음 장
+function showImage() {
+    viewerImg.src = images[index];
+    updateProgressBars();
+
+    clearTimeout(timer);                 // 이전 타이머 취소
+    timer = setTimeout(nextImage, 3000); // 3초 후 다음 사진
+}
+
+function nextImage() {
+    if (index < images.length - 1) {
+        index++;
+        showImage();
+    } else {
+        closeViewer();   // 마지막 사진이면 뷰어 닫기
+    }
+}
+
+function prevImage() {
+    if (index > 0) {
+        index--;
+        showImage();
+    }
+}
+
+function closeViewer() {
+    viewer.classList.add('hidden');
+    clearTimeout(timer);   // 타이머 정리 (안 하면 닫아도 계속 돌아감)
+}
+
+// 진행 바를 사진 수만큼 만들기
+function buildProgressBars() {
+    progressBars.innerHTML = '';
+    images.forEach(() => {
+        const bar = document.createElement('div');
+        bar.className = 'progress-bar';
+        progressBars.appendChild(bar);
+    });
+}
+
+// 현재 보고 있는 사진의 진행 바만 흰색으로
+function updateProgressBars() {
+    document.querySelectorAll('.progress-bar').forEach((bar, i) => {
+        bar.classList.toggle('active', i === index);
+    });
+}
+
+// 버튼 연결
+document.getElementById('viewer-next').addEventListener('click', nextImage);
+document.getElementById('viewer-prev').addEventListener('click', prevImage);
+document.getElementById('viewer-close').addEventListener('click', closeViewer);
