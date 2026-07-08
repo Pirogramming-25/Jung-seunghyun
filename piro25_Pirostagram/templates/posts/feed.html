@@ -1,4 +1,17 @@
 {% load static %}
+<style>
+    .like-btn {
+        border: none;
+        background: none;
+        font-size: 24px;
+        color: #ccc;        /* 기본: 회색 하트 */
+        cursor: pointer;
+    }
+    .like-btn.liked {
+        color: red;         /* liked 클래스가 붙으면: 빨간 하트 */
+    }
+</style>
+
 <h1>Pirostagram 피드</h1>
 <a href="{% url 'accounts:logout' %}">로그아웃</a>
 
@@ -22,6 +35,14 @@
                 <img src="{{ img.image.url }}" width="300">
             {% endfor %}
             <p>{{ post.caption }}</p>
+
+            <!--좋아여 버튼-->
+            <!--post.id가 liked_posts에 있으면 liked 클래스 붙임 -> 빨간 하트-->
+            <button class="like-btn {% if post.id in liked_posts %}liked{% endif %}" data-id="{{post.id}}">♥</button>
+
+            <!--좋아요 총 개수-->
+            <span class="like-count" data-id="{{ post.id }}">{{ post.likes.count }}</span>
+
             <!--내 글일 때만 삭제 버튼 보이기-->
             {% if post.author == request.user %}
                 <button class="delete-btn" data-id="{{ post.id }}">삭제</button>

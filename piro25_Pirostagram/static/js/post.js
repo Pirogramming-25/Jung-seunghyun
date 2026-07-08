@@ -40,3 +40,23 @@ document.querySelectorAll('.delete-btn').forEach((btn) => {
         }
     });
 });
+
+// 좋아요 토클
+document.querySelectorAll('.like-btn').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+        const id = btn.dataset.id;   //몇 번 글인지
+
+        //서버에 좋아요 토글 요청
+        const res = await fetch(`/${id}/like/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': getCookie('csrftoken') },
+        });
+        const data = await res.json();   // { liked: true/false, count: 숫자 }
+
+        // 1. 하트 색 토글: liked 값에 따라 'liked' 클래스를 켜고 끔
+        btn.classList.toggle('liked', data.liked);
+
+        // 2. 개수 갱신: 같은 data-id를 가진 like-count의 숫자를 바꿈
+        document.querySelector(`.like-count[data-id="${id}"]`).textContent = data.count;
+    });
+});

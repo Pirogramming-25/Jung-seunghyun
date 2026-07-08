@@ -1,14 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Post, PostImage
+from .models import Post, PostImage, Like
 
 #[조회] 메인 피드 화면을 보여주는 함수
 @login_required # 로그인해야 접근 가능
 def feed(request):
     posts = Post.objects.all()   # DB에서 게시글 전부 가져오기
+    
+    #내가 좋아요 누른 게시글들의 id 목록을 미리 구함
+    liked_posts = request.user.likes.values_list('post_id', flat=True)
+    
     # feed.html 템플릿에 posts를 넘겨서 화면을 그림
-    return render(request, 'posts/feed.html', {'posts': posts})
+    return render(request, 'posts/feed.html', {'posts': posts, 'liked_posts': liked_posts})
 
 #[작성] 새 게시글을 만드는 함수(Ajax로 호출됨)
 @login_required
@@ -61,3 +65,26 @@ def post_delete(request, post_id):
         post.delete()
         return JsonResponse({'success': True, 'id': post_id})
     return JsonResponse({'error': 'POST 요청만 허용'}, status=400)
+
+@login_required
+def like_toggle(request, post_id):
+    post = get_object_or_404(Post, id=post_id)
+    
+    #get_pr_create = 있으면 가져오고 없으면 새로 만듦
+    like, created = Like.objects.get_or_create(user=request.user, post=post)
+    
+    if created:
+        # created=True 방금 새로 만들어진 상태
+        # 좋아요 누른 상태
+        liked=True
+    else:
+        # created=False 이미 있었음
+        # 다시 누른 것이므로 삭제
+        like.delete()
+        liked=False
+    #총 좋아요 수 세기
+    count = post.likes.count()
+    
+    #JS에게 현재 상태와 개수 알려줌
+    return JsonResponse({'liked': liked, 'count': count})
+    
