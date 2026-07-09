@@ -1,0 +1,150 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div class="layout">
+
+    {% include 'sidebar.html' %} 
+
+    <!-- ===== 가운데 피드 ===== -->
+    <main class="feed-main">
+        <!-- 스토리 바 -->
+        <div class="story-bar">
+            <!-- 스토리+ : 누르면 사진 선택 → 자동 업로드 -->
+            <label class="story-item" for="story-file">
+                <div class="story-add">+</div>
+                <div>스토리+</div>
+            </label>
+            {% for s in story_list %}
+                <div class="story-item" data-images='{{ s.images_json|safe }}'>
+                    <img src="{{ s.thumb }}" class="story-thumb">
+                    <div>{{ s.username }}</div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- 숨겨진 스토리 업로드 폼 -->
+        <form method="post" action="{% url 'stories:create' %}" enctype="multipart/form-data" id="story-form">
+            {% csrf_token %}
+            <input type="file" id="story-file" name="images" multiple accept="image/*"
+                style="display:none" onchange="document.getElementById('story-form').submit()">
+        </form>
+
+        <!-- 게시글 정렬 -->
+        <form method="get" action="{% url 'posts:feed' %}" class="sort-form">
+            게시글 정렬 기준:
+            <select name="sort">
+                <option value="recent" {% if sort == 'recent' %}selected{% endif %}>최신순</option>
+                <option value="likes" {% if sort == 'likes' %}selected{% endif %}>좋아요순</option>
+                <option value="comments" {% if sort == 'comments' %}selected{% endif %}>댓글순</option>
+            </select>
+            <button type="submit">정렬하기</button>
+        </form>
+        
+        <!-- 게시글 목록 (기존 내용 그대로) -->
+        <div id="post-list">
+            {% for post in posts %}
+                <div class="post" data-id="{{ post.id }}">
+                    <strong>{{ post.author.username }}</strong>
+                    {% for img in post.images.all %}
+                        <img src="{{ img.image.url }}">
+                    {% endfor %}
+                    <p>{{ post.caption }}</p>
+
+                    <button class="like-btn {% if post.id in liked_posts %}liked{% endif %}" data-id="{{ post.id }}">♥</button>
+                    <span class="like-count" data-id="{{ post.id }}">{{ post.likes.count }}</span>
+
+                    <div class="comment-list">
+                        {% for comment in post.comments.all %}
+                            <div class="comment">
+                                <strong>{{ comment.user.username }}</strong>
+                                <span>{{ comment.content }}</span>
+                                {% if comment.user == request.user %}
+                                    <form method="post" action="{% url 'posts:comment_update' comment.id %}" style="display:inline">
+                                        {% csrf_token %}
+                                        <input type="text" name="content" value="{{ comment.content }}">
+                                        <button type="submit">수정</button>
+                                    </form>
+                                    <form method="post" action="{% url 'posts:comment_delete' comment.id %}" style="display:inline">
+                                        {% csrf_token %}
+                                        <button type="submit">삭제</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <form class="comment-form" method="post" action="{% url 'posts:comment_create' post.id %}">
+                        {% csrf_token %}
+                        <input type="text" name="content" placeholder="댓글 달기...">
+                        <button type="submit">게시</button>
+                    </form>
+
+                    {% if post.author == request.user %}
+                        <button class="edit-btn" data-id="{{ post.id }}">수정</button>
+                        <button class="delete-btn" data-id="{{ post.id }}">삭제</button>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <aside class="right-bar">
+        <!-- 내 계정 + 전환 -->
+        <div class="me">
+            <a href="{% url 'accounts:profile' request.user.username %}" class="rec-user">
+                {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" class="right-avatar">
+                {% else %}
+                    <div class="right-avatar" style="background:#ddd;"></div>
+                {% endif %}
+                <strong>{{ request.user.username }}</strong>
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="switch">전환</a>
+        </div>
+
+        <h3>다른 사용자 추천</h3>
+
+        <!-- 추천 유저 목록 -->
+        {% for u in recommended %}
+            <a href="{% url 'accounts:profile' u.username %}" class="rec-user">
+                {% if u.profile_image %}
+                    <img src="{{ u.profile_image.url }}" class="right-avatar">
+                {% else %}
+                    <div class="right-avatar" style="background:#ddd;"></div>
+                {% endif %}
+                <strong>{{ u.username }}</strong>
+            </a>
+        {% endfor %}
+    </aside>
+
+    <!-- 게시글 작성 모달 -->
+    <div id="post-modal" class="modal hidden">
+        <div class="modal-box">
+            <button class="modal-close" onclick="document.getElementById('post-modal').classList.add('hidden')">✕</button>
+            <h3>새 게시글</h3>
+            <form id="post-form" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="file" name="images" multiple accept="image/*">
+                <textarea name="caption" placeholder="문구 입력..."></textarea>
+                <button type="submit">게시</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- 스토리 뷰어 -->
+    <div id="story-viewer" class="hidden">
+        <div id="progress-bars"></div>
+
+        <button id="viewer-prev">‹</button>
+
+        <!-- 흰색 카드 -->
+        <div class="viewer-card">
+            <button id="viewer-close">✕</button>
+            <img id="viewer-img">
+        </div>
+
+        <button id="viewer-next">›</button>
+    </div>
+
+<script src="{% static 'js/post.js' %}"></script>

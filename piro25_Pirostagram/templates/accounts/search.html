@@ -1,0 +1,48 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="search-main">
+        <div class="search-logo">Pirostagram</div>
+
+        <form method="get" action="{% url 'accounts:search' %}" class="search-box">
+            <input type="text" name="q" value="{{ query }}" placeholder="아이디 또는 이름">
+            <button type="submit">검색</button>
+        </form>
+
+        {% if query %}
+            <h2 class="search-title">"{{ query }}"로 검색한 결과</h2>
+
+            {% for user in results %}
+                <div class="user-card">
+                    <a href="{% url 'accounts:profile' user.username %}" class="user-card-left">
+                        {% if user.profile_image %}
+                            <img src="{{ user.profile_image.url }}">
+                        {% else %}
+                            <div class="user-card-avatar" style="background:#ddd;"></div>
+                        {% endif %}
+                        <div>
+                            <div class="uc-name">{{ user.first_name|default:user.username }}</div>
+                            <div class="uc-id">{{ user.username }}</div>
+                        </div>
+                    </a>
+
+                    {% if user != request.user %}
+                        <form method="post" action="{% url 'accounts:follow' user.username %}">
+                            {% csrf_token %}
+                            {% if user.id in following_ids %}
+                                <button class="btn-following">팔로잉</button>
+                            {% else %}
+                                <button class="btn-blue">팔로우</button>
+                            {% endif %}
+                        </form>
+                    {% endif %}
+                </div>
+            {% empty %}
+                <p style="text-align:center;">검색 결과가 없습니다.</p>
+            {% endfor %}
+        {% endif %}
+    </main>
+</div>

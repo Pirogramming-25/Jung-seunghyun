@@ -1,0 +1,31 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<div class="layout">
+    {% include 'sidebar.html' %}
+
+    <main class="search-main">
+        <div class="search-logo">Pirostagram</div>
+
+        <form method="get" action="{% url 'posts:search' %}" class="search-box">
+            <input type="text" name="q" value="{{ query }}" placeholder="게시글 검색">
+            <button type="submit">검색</button>
+        </form>
+
+        {% if query %}
+            <h2 class="search-title">"{{ query }}" 게시글 검색 결과</h2>
+
+            {% for post in results %}
+                <div class="post">
+                    <strong>{{ post.author.username }}</strong>
+                    {% for img in post.images.all %}
+                        <img src="{{ img.image.url }}">
+                    {% endfor %}
+                    <p>{{ post.caption }}</p>
+                </div>
+            {% empty %}
+                <p style="text-align:center;">검색 결과가 없습니다.</p>
+            {% endfor %}
+        {% endif %}
+    </main>
+</div>
