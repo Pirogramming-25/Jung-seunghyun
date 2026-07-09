@@ -1,0 +1,29 @@
+# environment
+.env
+.env.*
+!.env.example
+
+# django / database
+db.sqlite3
+*.sqlite3
+
+# uploaded files
+media/
+
+# python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+.venv/
+
+# mac
+.DS_Store
+
+# vscode
+.vscode/
+
+# docker
+*.log
