@@ -1,0 +1,8 @@
+services:
+  web:
+    build: .
+    image: seunngh/pirostagram:latest
+    container_name: pirostagram
+    ports:
+      - "8000:8000"
+
