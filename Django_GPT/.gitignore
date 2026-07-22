@@ -1,0 +1,16 @@
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+.env
+
+db.sqlite3
+
+.DS_Store
+
+*.egg-info/
+.pytest_cache/
+
+# Hugging Face 모델 캐시 (용량 크고 로컬에만 필요)
+.cache/

@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Django GPT</title>
+    <link rel="stylesheet" href="{% static 'my_gpt/css/style.css' %}">
+</head>
+<body>
+    {% csrf_token %}
+    <nav>
+        <a class="nav-link {% if request.resolver_match.url_name == 'sentiment' %}active{% endif %}"
+            href="{% url 'sentiment' %}">감정 분석</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'summarize' %}active{% endif %}"
+            href="{% url 'summarize' %}">문서 요약</a>
+        <a class="nav-link {% if request.resolver_match.url_name == 'moderate' %}active{% endif %}"
+            href="{% url 'moderate' %}">유해 표현 분석</a>
+
+        {% if request.user.is_authenticated %}
+            <span>{{ request.user.username }}님</span>
+            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                {% csrf_token %}
+                <button>로그아웃</button>
+            </form>
+        {% else %}
+            <a href="{% url 'login' %}">로그인</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
